@@ -1,0 +1,11 @@
+TypedBrowse
+Copyright 2026 TypedBrowse contributors
+License: TBD — open decision D11, to be recorded here once chosen.
+
+This project is inspired by Browser Use's MIT-licensed "jev-ultrafast" project
+(https://github.com/browser-use/jev-ultrafast). TypedBrowse is an independent,
+original reimplementation of the architectural pattern and is not affiliated with,
+endorsed by, or derived from Browser Use's codebase.
+
+TypedBrowse uses the Jev typed-decision model by TypeSafe (https://typesafe.ai).
+Not affiliated with, endorsed by, or derived from TypeSafe.
