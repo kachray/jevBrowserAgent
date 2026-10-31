@@ -52,4 +52,23 @@ Milestone 1 enforces no cap on page text or control count; the truncation flags 
 - `role`: the element's explicit `role` attribute if present, otherwise null. **Owner decision (not in v0.1)**
 - `current_value` for a checkbox: the string "checked" or "unchecked". **Owner decision (not in v0.1)**
 
-**Status: Proposed.** Scope: Milestone 1 only. Sections completed: 2 (top-level schema, control fields).
+## 3. Control types (parent section 5)
+
+| Type | Milestone 1 | Label |
+|---|---|---|
+| `link` | Kept | Narrowed from v0.1 |
+| `button` | Kept | Narrowed from v0.1 |
+| `text_input` | Kept | Narrowed from v0.1 |
+| `checkbox` | Kept | Narrowed from v0.1 |
+| `unknown` | Kept | Narrowed from v0.1 |
+| `textarea` | Deferred | Simplified for Milestone 1 |
+| `select` | Deferred | Simplified for Milestone 1 |
+| `radio` | Deferred | Simplified for Milestone 1 |
+
+- `unknown` is the fallback for any control the extraction logic cannot confidently classify. An `unknown` control may still appear in the snapshot (so Jev and the verifier can see it exists) but should default to `actionable: false` and `text_input_allowed: false` unless a later revision adds explicit handling. **Narrowed from v0.1**
+- Drag-and-drop, file upload, payment, CAPTCHA, and arbitrary-JavaScript controls are excluded. **Narrowed from v0.1**
+
+**Open for owner decision:**
+- How HTML elements map to the five supported types (for example a, button, input type=submit, div with role=button) is not defined in the parent spec.
+
+**Status: Proposed.** Scope: Milestone 1 only. Sections completed: 3 (top-level schema, control fields, control types).
