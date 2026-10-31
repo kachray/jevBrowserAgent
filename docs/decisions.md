@@ -20,6 +20,6 @@
      from controls entirely (parent section 6).
   2. `role` field: the element's explicit `role` attribute if present, otherwise null.
   3. `current_value` for a checkbox: the string "checked" or "unchecked".
-- Source of record: docs/snapshot-spec-milestone1.md, section 2, committed in f93a819.
+- Source of record: docs/snapshot-spec-milestone1.md, section 2, committed in 4371b18.
 - Status: Proposed design, decided by the owner. docs/snapshot-spec.md has NOT been updated
   to match; the two documents differ until the parent spec is revised.
