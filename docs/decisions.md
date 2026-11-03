@@ -23,3 +23,27 @@
 - Source of record: docs/snapshot-spec-milestone1.md, section 2, committed in 4371b18.
 - Status: Proposed design, decided by the owner. docs/snapshot-spec.md has NOT been updated
   to match; the two documents differ until the parent spec is revised.
+
+## 2026-11-03
+- Snapshot Milestone 1, sections 5 and 6: owner decisions, recorded here because
+  docs/snapshot-spec.md (v0.1) leaves them open and does not contain them.
+  Section 5 (visibility and text rules):
+  1. An element that is off-screen but reachable by scrolling counts as visible and is indexed.
+  2. `accessible_label` for buttons and links is the element's own rendered text, the same value
+     as `visible_text`. Known gap: an icon-only control that has only an `aria-label` gets a
+     null label.
+  Section 6 (fingerprint):
+  3. `disabled` contributes to the fingerprint.
+  4. The hashed text is a compact JSON array of the page URL and, for each control in index order,
+     its `control_type`, `accessible_label` and `disabled`, in the form
+     `[url, [[control_type, accessible_label, disabled], ...]]`, with no extra whitespace and
+     encoded as UTF-8. A null `accessible_label` stays null and is not converted to an empty
+     string. The control count is not hashed separately, because the array length already
+     carries it.
+  5. The fingerprint keeps the "sha256:" prefix, followed by the hex digest.
+  6. `current_value` does not contribute to the fingerprint (the parent proposes this but lists it
+     as unsettled).
+- Source of record: docs/snapshot-spec-milestone1.md, section 5 committed in 008467e and
+  section 6 committed in c680bd8.
+- Status: Proposed design, decided by the owner. docs/snapshot-spec.md has NOT been updated
+  to match; the two documents differ until the parent spec is revised.
