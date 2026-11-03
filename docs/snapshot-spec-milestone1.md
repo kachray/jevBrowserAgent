@@ -111,9 +111,36 @@ Milestone 1 enforces no cap on page text or control count; the truncation flags 
 - Rule 9 is deferred because Milestone 1 enforces no cap on page text (section 1). **Simplified for Milestone 1**
 - Rule 10 is deferred because page.text_truncated is deferred (section 1). **Simplified for Milestone 1**
 - Rule 8 ignores `aria-label`, because full ARIA accessible-name computation is deferred (rule 11). **Simplified for Milestone 1**
+- Rule 5 keeps the parent's rationale that `visible_text` and `accessible_label` can differ. For buttons and links they now hold the same value (see Owner decisions below); they still differ for inputs. **Simplified for Milestone 1**
 
 **Owner decisions:**
 - An element that is off-screen but reachable by scrolling counts as visible and is indexed. **Owner decision (not in v0.1)**
 - `accessible_label` for buttons and links is the element's own rendered text, the same value as `visible_text`. Known gap: an icon-only control that has only an `aria-label` gets a null label. **Owner decision (not in v0.1)**
 
-**Status: Proposed.** Scope: Milestone 1 only. Sections completed: 5 (top-level schema, control fields, control types, indexing rules, visibility and text rules).
+## 6. Fingerprint (parent section 9)
+
+| Element | Milestone 1 | Label |
+|---|---|---|
+| 1. The page URL contributes to the fingerprint. | Kept | Narrowed from v0.1 |
+| 2. For each control in index order, `control_type` contributes. | Kept | Narrowed from v0.1 |
+| 3. For each control, `accessible_label` contributes. | Kept | Narrowed from v0.1 |
+| 4. For each control, `disabled` contributes, so a control changing between disabled and enabled changes the fingerprint. | Kept | Owner decision (not in v0.1) |
+| 5. Control order contributes, so reordering or relabeling controls changes the fingerprint. | Kept | Narrowed from v0.1 |
+| 6. `timestamp` and `observation_id` never contribute, since they change on every observation by construction and would make the fingerprint useless for staleness comparison. | Kept | Narrowed from v0.1 |
+| 7. The facts are hashed with SHA-256, producing the `fingerprint` string. | Kept | Narrowed from v0.1 |
+| 8. `current_value` does not contribute. | Excluded | Owner decision (not in v0.1) |
+| 9. `visible` does not contribute, because it is always true in Milestone 1 (section 2). | Excluded | Simplified for Milestone 1 |
+| 10. `required` does not contribute, because the field is deferred (section 2). | Excluded | Simplified for Milestone 1 |
+| 11. `page.title` and `page.text_summary` do not contribute. | Excluded | Narrowed from v0.1 |
+| 12. **What happens when the fingerprint changes:** any decision (a Jev choice, a planned `field_text` call) that was computed against an earlier fingerprint becomes invalid. It must not be executed. | Deferred | Simplified for Milestone 1 |
+| 13. **When a Jev choice must be discarded:** immediately before `act()` runs, the executor re-observes (or re-checks) the current fingerprint. If it does not match the fingerprint the decision was made against, the decision is discarded and the loop re-observes fresh rather than acting. | Deferred | Simplified for Milestone 1 |
+| 14. **How a new observation is requested:** the agent loop calls `observe()` again; there is no separate refresh operation distinct from a normal observation. | Deferred | Simplified for Milestone 1 |
+
+All three deferred items depend on `act()` and the agent loop, which Milestone 1 defers. **Simplified for Milestone 1**
+
+**Owner decisions:**
+- `disabled` contributes to the fingerprint (row 4). **Owner decision (not in v0.1)**
+- The hashed text is a compact JSON array of the page URL and, for each control in index order, its `control_type`, `accessible_label` and `disabled`, in the form `[url, [[control_type, accessible_label, disabled], ...]]`, with no extra whitespace and encoded as UTF-8. A null `accessible_label` stays `null` and is not converted to an empty string. The control count is not hashed separately, because the array length already carries it. **Owner decision (not in v0.1)**
+- The fingerprint keeps the "sha256:" prefix, followed by the hex digest. **Owner decision (not in v0.1)**
+
+**Status: Proposed.** Scope: Milestone 1 only. Sections completed: 6 (top-level schema, control fields, control types, indexing rules, visibility and text rules, fingerprint).
