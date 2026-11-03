@@ -75,14 +75,14 @@ Milestone 1 enforces no cap on page text or control count; the truncation flags 
 
 | Rule | Milestone 1 | Label |
 |---|---|---|
-| **Traversal order:** document order (DOM pre-order traversal) at observation time. This is deterministic for a given page state, satisfying the determinism principle in parent §2. | Kept | Narrowed from v0.1 |
-| **Hidden elements:** excluded from `controls[]` entirely per the visibility rules in parent §7 — they do not receive an index at all, rather than appearing with `visible: false`. | Kept | Narrowed from v0.1 |
-| **Disabled controls:** remain in the snapshot, with `disabled: true`. They are not hidden, because Jev and the verifier need to know a control exists and why it can't currently be used (e.g. distinguishing "no submit button" from "submit button, disabled"). | Kept | Narrowed from v0.1 |
-| **Duplicate labels:** represented as separate control entries, each with its own `index`. No deduplication or merging occurs. | Kept | Narrowed from v0.1 |
-| **Index assignment:** indexes are assigned sequentially (0, 1, 2, ...) in traversal order at the time of the snapshot, after hidden elements are excluded. | Kept | Narrowed from v0.1 |
-| **Stability scope:** an index is stable **only within the snapshot that produced it.** It must not be treated as a durable identity across snapshots or across page mutations. | Kept | Narrowed from v0.1 |
-| **Why an index must not be reused after a page mutation:** any DOM change (a new element inserted, one removed, order changed, visibility changed) can shift which control occupies a given index. Acting on an index captured from an earlier snapshot risks acting on the wrong control. | Kept | Narrowed from v0.1 |
-| Disambiguation guidance for duplicate labels | Deferred | Simplified for Milestone 1 |
+| 1. **Traversal order:** document order (DOM pre-order traversal) at observation time. This is deterministic for a given page state, satisfying the determinism principle in parent §2. | Kept | Narrowed from v0.1 |
+| 2. **Hidden elements:** excluded from `controls[]` entirely per the visibility rules in parent §7 — they do not receive an index at all, rather than appearing with `visible: false`. | Kept | Narrowed from v0.1 |
+| 3. **Disabled controls:** remain in the snapshot, with `disabled: true`. They are not hidden, because Jev and the verifier need to know a control exists and why it can't currently be used (e.g. distinguishing "no submit button" from "submit button, disabled"). | Kept | Narrowed from v0.1 |
+| 4. **Duplicate labels:** represented as separate control entries, each with its own `index`. No deduplication or merging occurs. | Kept | Narrowed from v0.1 |
+| 5. **Index assignment:** indexes are assigned sequentially (0, 1, 2, ...) in traversal order at the time of the snapshot, after hidden elements are excluded. | Kept | Narrowed from v0.1 |
+| 6. **Stability scope:** an index is stable **only within the snapshot that produced it.** It must not be treated as a durable identity across snapshots or across page mutations. | Kept | Narrowed from v0.1 |
+| 7. **Why an index must not be reused after a page mutation:** any DOM change (a new element inserted, one removed, order changed, visibility changed) can shift which control occupies a given index. Acting on an index captured from an earlier snapshot risks acting on the wrong control. | Kept | Narrowed from v0.1 |
+| 8. Disambiguation guidance for duplicate labels | Deferred | Simplified for Milestone 1 |
 
 **Adjusted for earlier decisions:**
 - Rule 4 omits the parent's mention of a stable_id per control, because stable_id is deferred (section 2). **Simplified for Milestone 1**
@@ -90,4 +90,30 @@ Milestone 1 enforces no cap on page text or control count; the truncation flags 
 - Rule 7 omits the parent's statement that the fingerprint is re-checked before act() uses an index, because act() is deferred. **Simplified for Milestone 1**
 - Rule 2 omits the parent's open-decision note about including hidden elements with a flag, because section 2 decided that hidden elements are excluded and `visible` is always true. **Simplified for Milestone 1**
 
-**Status: Proposed.** Scope: Milestone 1 only. Sections completed: 4 (top-level schema, control fields, control types, indexing rules).
+## 5. Visibility and text rules (parent section 7)
+
+| Rule | Milestone 1 | Label |
+|---|---|---|
+| 1. **Visible controls:** a control is visible if it has non-zero rendered size, is not `display: none`, is not `visibility: hidden`. | Kept | Narrowed from v0.1 |
+| 2. **Hidden controls (`display: none`):** excluded from `controls[]` (parent section 6). | Kept | Narrowed from v0.1 |
+| 3. **`visibility: hidden`:** treated the same as `display: none` — excluded, not included-with-flag. (This differs from `disabled`, which is included-with-flag; the distinction is that a disabled control is still meaningful to a user looking at the page, while a hidden one is not visible at all.) | Kept | Narrowed from v0.1 |
+| 4. **Disabled controls:** included, with `disabled: true` (parent section 6). | Kept | Narrowed from v0.1 |
+| 5. **Inner text:** `visible_text` is the control's own rendered text content (e.g. a button's label text), kept separate from `accessible_label` because they can differ. | Kept | Narrowed from v0.1 |
+| 6. **Placeholder text:** used only as a fallback source for `accessible_label` when nothing else is available, never as `current_value`. | Kept | Narrowed from v0.1 |
+| 7. **Whitespace normalization:** collapse runs of whitespace (including newlines) to a single space, and trim leading/trailing whitespace, for both `page.text_summary` and any control text field. | Kept | Narrowed from v0.1 |
+| 8. **Accessible names:** `accessible_label` comes from the associated `<label>` element's text, then `placeholder` as a last resort for inputs. | Simplified | Simplified for Milestone 1 |
+| 9. **Maximum text length** | Deferred | Simplified for Milestone 1 |
+| 10. **Truncation markers** | Deferred | Simplified for Milestone 1 |
+| 11. **Full ARIA accessible-name computation** | Deferred | Simplified for Milestone 1 |
+
+**Adjusted for earlier decisions:**
+- Rule 1 omits the parent's off-screen clause; the off-screen decision is recorded under Owner decisions below. **Simplified for Milestone 1**
+- Rule 9 is deferred because Milestone 1 enforces no cap on page text (section 1). **Simplified for Milestone 1**
+- Rule 10 is deferred because page.text_truncated is deferred (section 1). **Simplified for Milestone 1**
+- Rule 8 ignores `aria-label`, because full ARIA accessible-name computation is deferred (rule 11). **Simplified for Milestone 1**
+
+**Owner decisions:**
+- An element that is off-screen but reachable by scrolling counts as visible and is indexed. **Owner decision (not in v0.1)**
+- `accessible_label` for buttons and links is the element's own rendered text, the same value as `visible_text`. Known gap: an icon-only control that has only an `aria-label` gets a null label. **Owner decision (not in v0.1)**
+
+**Status: Proposed.** Scope: Milestone 1 only. Sections completed: 5 (top-level schema, control fields, control types, indexing rules, visibility and text rules).
