@@ -38,7 +38,7 @@ Milestone 1 enforces no cap on page text or control count; the truncation flags 
 | `visible_text` | Kept | Narrowed from v0.1 |
 | `role` | Kept | Narrowed from v0.1 |
 | `input_type` | Kept | Narrowed from v0.1 |
-| `current_value` | Kept | Narrowed from v0.1 |
+| `current_value` | Kept | Owner decision (not in v0.1) |
 | `disabled` | Kept | Narrowed from v0.1 |
 | `visible` | Kept | Narrowed from v0.1 |
 | `actionable` | Kept | Narrowed from v0.1 |
