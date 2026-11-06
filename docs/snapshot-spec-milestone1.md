@@ -38,7 +38,7 @@ Milestone 1 enforces no cap on page text or control count; the truncation flags 
 | `visible_text` | Kept | Narrowed from v0.1 |
 | `role` | Kept | Narrowed from v0.1 |
 | `input_type` | Kept | Narrowed from v0.1 |
-| `current_value` | Kept | Narrowed from v0.1 |
+| `current_value` | Kept | Owner decision (not in v0.1) |
 | `disabled` | Kept | Narrowed from v0.1 |
 | `visible` | Kept | Narrowed from v0.1 |
 | `actionable` | Kept | Narrowed from v0.1 |
@@ -143,4 +143,26 @@ All three deferred items depend on `act()` and the agent loop, which Milestone 1
 - The hashed text is a compact JSON array of the page URL and, for each control in index order, its `control_type`, `accessible_label` and `disabled`, in the form `[url, [[control_type, accessible_label, disabled], ...]]`, with no extra whitespace and encoded as UTF-8. A null `accessible_label` stays `null` and is not converted to an empty string. The control count is not hashed separately, because the array length already carries it. **Owner decision (not in v0.1)**
 - The fingerprint keeps the "sha256:" prefix, followed by the hex digest. **Owner decision (not in v0.1)**
 
-**Status: Proposed.** Scope: Milestone 1 only. Sections completed: 6 (top-level schema, control fields, control types, indexing rules, visibility and text rules, fingerprint).
+## 7. Security and privacy (parent section 13)
+
+| Rule | Milestone 1 | Label |
+|---|---|---|
+| 1. No API keys, in any provider's format. | Kept | Narrowed from v0.1 |
+| 2. No cookies. | Kept | Narrowed from v0.1 |
+| 3. No authorization headers or tokens. | Kept | Narrowed from v0.1 |
+| 4. No browser profile data (history, saved passwords, autofill data). | Kept | Narrowed from v0.1 |
+| 5. **No raw passwords:** password-type inputs are excluded from `controls[]` entirely (parent sections 4 and 6). | Kept | Narrowed from v0.1 |
+| 6. **Hidden inputs** are excluded from `controls[]` entirely (parent section 14, hidden-input case). | Kept | Narrowed from v0.1 |
+| 7. **Untrusted page content:** everything in `page.text_summary`, `accessible_label`, and `visible_text` originates from a third-party page and must be treated as untrusted data by every consumer. The snapshot format itself does not sanitize for injection attempts (e.g. text that reads like an instruction) — that is a prompt-construction and policy concern, not a schema concern, and is handled outside the snapshot. | Kept | Narrowed from v0.1 |
+| 8. **No sensitive form values:** payment-related fields are excluded the same way as passwords (this is only the payment part of the parent's "sensitive form values" bullet; the "only when safe" part is covered by the first owner decision below). | Deferred | Simplified for Milestone 1 |
+| 9. **Page text is bounded** (parent section 7), both to keep snapshots a manageable size and to limit how much untrusted page content is ever forwarded to a provider. | Deferred | Simplified for Milestone 1 |
+| 10. **Prompt-injection handling:** out of scope for this document. The snapshot only carries data; how `jev/` frames that data in a request, and how `policy/`-equivalent checks prevent injected page text from being treated as an instruction, are handled elsewhere. | Deferred | Simplified for Milestone 1 |
+| 11. **URL and label policy enforcement** (allowlist, blocklist) happens outside the snapshot, in executor policy immediately before `act()` (the `policy_denial` category in parent section 10 is where that shows up in this contract). The snapshot itself does not encode or enforce policy — it only reports facts (e.g. `accessible_label`) that policy code can check. | Deferred | Simplified for Milestone 1 |
+
+Rows 8 to 11 are deferred: Milestone 1 uses only local fixtures with no payment fields, and the parent does not define how payment-related fields are detected (row 8); Milestone 1 enforces no text cap (row 9, section 1); there is no Jev integration yet (row 10); and act() is deferred (row 11). **Simplified for Milestone 1**
+
+**Owner decisions:**
+- `current_value` is populated only for checkbox controls (the string "checked" or "unchecked") and for `text_input` controls whose `input_type` is "text" or "search". It is null for every other control type and input type. **Owner decision (not in v0.1)**
+- File inputs are excluded from `controls` entirely, like password and hidden inputs. **Owner decision (not in v0.1)**
+
+**Status: Proposed.** Scope: Milestone 1 only. Sections completed: 7 (top-level schema, control fields, control types, indexing rules, visibility and text rules, fingerprint, security).

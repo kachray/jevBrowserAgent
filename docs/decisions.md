@@ -47,3 +47,19 @@
   section 6 committed in c680bd8.
 - Status: Proposed design, decided by the owner. docs/snapshot-spec.md has NOT been updated
   to match; the two documents differ until the parent spec is revised.
+
+## 2026-11-07
+- Snapshot Milestone 1, section 7 (security and privacy): two owner decisions,
+  recorded here because docs/snapshot-spec.md (v0.1) does not contain them.
+  1. `current_value` is populated only for checkbox controls (the string "checked"
+     or "unchecked") and for `text_input` controls whose `input_type` is "text" or
+     "search". It is null for every other control type and input type. This narrows
+     and extends the 2026-10-31 decision on `current_value` for checkboxes.
+  2. File inputs are excluded from `controls` entirely, like password and hidden
+     inputs.
+- Related: section 2's `current_value` row label was changed to "Owner decision
+  (not in v0.1)" to match, committed in ea74739.
+- Source of record: docs/snapshot-spec-milestone1.md, section 7 committed in
+  f03e185.
+- Status: Proposed design, decided by the owner. docs/snapshot-spec.md has NOT been
+  updated to match; the two documents differ until the parent spec is revised.
