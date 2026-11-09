@@ -51,6 +51,7 @@ Milestone 1 enforces no cap on page text or control count; the truncation flags 
 - `visible`: kept. Always true in Milestone 1, because hidden elements are excluded from controls entirely (parent section 6). **Owner decision (not in v0.1)**
 - `role`: the element's explicit `role` attribute if present, otherwise null. **Owner decision (not in v0.1)**
 - `current_value` for a checkbox: the string "checked" or "unchecked". **Owner decision (not in v0.1)**
+- A disabled control has `actionable: false`. A disabled `text_input` also has `text_input_allowed: false`. **Owner decision (not in v0.1)**
 
 ## 3. Control types (parent section 5)
 
@@ -68,8 +69,16 @@ Milestone 1 enforces no cap on page text or control count; the truncation flags 
 - `unknown` is the fallback for any control the extraction logic cannot confidently classify. An `unknown` control may still appear in the snapshot (so Jev and the verifier can see it exists) but should default to `actionable: false` and `text_input_allowed: false` unless a later revision adds explicit handling. **Narrowed from v0.1**
 - Drag-and-drop, file upload, payment, CAPTCHA, and arbitrary-JavaScript controls are excluded. **Narrowed from v0.1**
 
+**Owner decisions:**
+- HTML elements map to control types as follows. **Owner decision (not in v0.1)**
+  - `<a>` with an `href` attribute: `link`.
+  - `<button>` and `<input type="submit">`: `button`.
+  - `<input>` with type `text`, `search`, or no type attribute: `text_input`.
+  - `<input type="checkbox">`: `checkbox`.
+  - Any other element indexed as a control: `unknown`.
+
 **Open for owner decision:**
-- How HTML elements map to the five supported types (for example a, button, input type=submit, div with role=button) is not defined in the parent spec.
+- Which elements other than those above are indexed as `unknown` controls.
 
 ## 4. Indexing rules (parent section 6)
 
