@@ -63,3 +63,21 @@
   f03e185.
 - Status: Proposed design, decided by the owner. docs/snapshot-spec.md has NOT been
   updated to match; the two documents differ until the parent spec is revised.
+
+## 2026-11-10
+- Snapshot Milestone 1, sections 2, 3 and 8: owner decisions, recorded here because
+  docs/snapshot-spec.md (v0.1) does not contain them.
+  1. HTML elements map to control types as follows: `<a>` with an `href` is `link`;
+     `<button>` and `<input type="submit">` are `button`; `<input>` with type `text`,
+     `search` or no type is `text_input`; `<input type="checkbox">` is `checkbox`; any
+     other element indexed as a control is `unknown`. Which other elements are indexed
+     as `unknown` is still open.
+  2. A disabled control has `actionable: false`. A disabled `text_input` also has
+     `text_input_allowed: false`.
+  3. Test fixtures live in `tests/fixtures/` and are named `basic_page.html`,
+     `hidden_input_case.html` and `disabled_submit_page.html`. They contain ASCII text
+     only, because how non-ASCII text is hashed is still open.
+- Source of record: docs/snapshot-spec-milestone1.md, sections 2 and 3 committed in
+  85b19ac and section 8 committed in 24b8d18.
+- Status: Proposed design, decided by the owner. docs/snapshot-spec.md has NOT been
+  updated to match; the two documents differ until the parent spec is revised.
