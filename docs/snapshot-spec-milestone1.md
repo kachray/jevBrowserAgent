@@ -51,6 +51,7 @@ Milestone 1 enforces no cap on page text or control count; the truncation flags 
 - `visible`: kept. Always true in Milestone 1, because hidden elements are excluded from controls entirely (parent section 6). **Owner decision (not in v0.1)**
 - `role`: the element's explicit `role` attribute if present, otherwise null. **Owner decision (not in v0.1)**
 - `current_value` for a checkbox: the string "checked" or "unchecked". **Owner decision (not in v0.1)**
+- A disabled control has `actionable: false`. A disabled `text_input` also has `text_input_allowed: false`. **Owner decision (not in v0.1)**
 
 ## 3. Control types (parent section 5)
 
@@ -68,8 +69,16 @@ Milestone 1 enforces no cap on page text or control count; the truncation flags 
 - `unknown` is the fallback for any control the extraction logic cannot confidently classify. An `unknown` control may still appear in the snapshot (so Jev and the verifier can see it exists) but should default to `actionable: false` and `text_input_allowed: false` unless a later revision adds explicit handling. **Narrowed from v0.1**
 - Drag-and-drop, file upload, payment, CAPTCHA, and arbitrary-JavaScript controls are excluded. **Narrowed from v0.1**
 
+**Owner decisions:**
+- HTML elements map to control types as follows. **Owner decision (not in v0.1)**
+  - `<a>` with an `href` attribute: `link`.
+  - `<button>` and `<input type="submit">`: `button`.
+  - `<input>` with type `text`, `search`, or no type attribute: `text_input`.
+  - `<input type="checkbox">`: `checkbox`.
+  - Any other element indexed as a control: `unknown`.
+
 **Open for owner decision:**
-- How HTML elements map to the five supported types (for example a, button, input type=submit, div with role=button) is not defined in the parent spec.
+- Which elements other than those above are indexed as `unknown` controls.
 
 ## 4. Indexing rules (parent section 6)
 
@@ -165,4 +174,110 @@ Rows 8 to 11 are deferred: Milestone 1 uses only local fixtures with no payment 
 - `current_value` is populated only for checkbox controls (the string "checked" or "unchecked") and for `text_input` controls whose `input_type` is "text" or "search". It is null for every other control type and input type. **Owner decision (not in v0.1)**
 - File inputs are excluded from `controls` entirely, like password and hidden inputs. **Owner decision (not in v0.1)**
 
-**Status: Proposed.** Scope: Milestone 1 only. Sections completed: 7 (top-level schema, control fields, control types, indexing rules, visibility and text rules, fingerprint, security).
+## 8. Test cases (parent section 14)
+
+These are the Milestone 1 test cases. Each one asserts only what sections 1 to 7 already decide. Anything they leave undefined is listed at the end of this section and is not tested. **Simplified for Milestone 1**
+
+Rules for every test: **Simplified for Milestone 1**
+- Each test opens a fixture from a local file URL. No network is used.
+- A test never hardcodes a fingerprint, because `page.url` is a file URL that differs from machine to machine. It recomputes the hash from the snapshot using the section 6 formula and compares.
+- Fixtures contain ASCII text only, because how non-ASCII text is hashed is not decided.
+- A test that needs a changed page changes the fixture's DOM from test code after the first observation, then observes again.
+
+| Fixture | File | Milestone 1 | Label |
+|---|---|---|---|
+| `basic_page` | `tests/fixtures/basic_page.html` | Kept | Simplified for Milestone 1 |
+| `hidden_input_case` | `tests/fixtures/hidden_input_case.html` | Kept | Narrowed from v0.1 |
+| `disabled_submit_page` | `tests/fixtures/disabled_submit_page.html` | Kept | Narrowed from v0.1 |
+| `hotel_page`, `injection_page`, `overlay_page`, `stale_page_case`, `duplicate_label_case`, `long_text_case`, `unsupported_control_case` | None yet | Deferred | Simplified for Milestone 1 |
+
+`basic_page` stands in for `hotel_page` as the happy-path fixture, because `select` is deferred (section 3). **Simplified for Milestone 1**
+
+**8.1 `basic_page`**
+
+Page title "Basic page". It has a paragraph whose source text contains irregular spaces and a line break. No element has a `role` attribute. Controls, in document order:
+
+| Index | Element | control_type | accessible_label | current_value |
+|---|---|---|---|---|
+| 0 | `<a href="#about">About us</a>` | `link` | "About us" | null |
+| 1 | `<input type="text" value="Lisbon">` with `<label for>` text "City" | `text_input` | "City" | "Lisbon" |
+| 2 | `<input type="search" placeholder="Search" value="boots">`, no label | `text_input` | "Search" | "boots" |
+| 3 | `<input type="checkbox">` inside a `<label>` with text "Subscribe", unchecked | `checkbox` | "Subscribe" | "unchecked" |
+| 4 | `<input type="checkbox" checked>` with `<label for>` text "Remember me" | `checkbox` | "Remember me" | "checked" |
+| 5 | `<button type="button">Save</button>` | `button` | "Save" | null |
+
+| ID | Check | Source |
+|---|---|---|
+| B1 | `schema_version` is present. `page.url` is the fixture's URL. `page.title` is "Basic page". `observation_id` is null. `control_count` is 6 and equals the length of `controls`. | Section 1 |
+| B2 | The six controls appear in document order with indexes 0 to 5. | Section 4, rules 1 and 5 |
+| B3 | `control_type` and `accessible_label` match the table above. | Sections 3 and 5 |
+| B4 | `current_value` matches the table above, and is null for the link and the button. | Sections 2 and 7 |
+| B5 | `role` is null, `disabled` is false and `visible` is true for all six controls. | Section 2 |
+| B6 | `page.text_summary` has no run of two or more whitespace characters and no leading or trailing whitespace. | Section 5, rule 7 |
+| B7 | The snapshot converts to JSON and back with no change. | Milestone 1 scope |
+| B8 | `fingerprint` is "sha256:" followed by 64 lowercase hex digits, and equals the hash recomputed from `page.url` and each control's `control_type`, `accessible_label` and `disabled`. | Section 6 |
+| B9 | Observing the unchanged page twice gives the same fingerprint. | Section 6 |
+| B10 | After the text of the "Save" button is changed from test code, the new fingerprint differs from the first. | Section 6, rule 3 |
+
+**8.2 `hidden_input_case`**
+
+Page title "Hidden input case". Elements, in document order:
+
+| Element | Result |
+|---|---|
+| `<input type="text" value="Ana">` with `<label for>` text "Name" | Indexed as 0, `text_input`, "Name" |
+| `<input type="password" value="sentinel-password">` with label "Password" | Excluded |
+| `<input type="hidden" value="sentinel-token">` | Excluded |
+| `<input type="file">` | Excluded |
+| `<button style="display:none">Secret</button>` | Excluded |
+| `<a href="#x" style="visibility:hidden">Invisible link</a>` | Excluded |
+| `<div style="height:3000px"></div>` (spacer, not a control) | Not indexed |
+| `<button type="button">Continue</button>` | Indexed as 1, `button`, "Continue" |
+
+| ID | Check | Source |
+|---|---|---|
+| H1 | `control_count` is 2, and `controls` holds "Name" at index 0 and "Continue" at index 1. | Section 4, rule 2 |
+| H2 | No control has `input_type` "password" or the label "Password". | Section 7, rule 5 |
+| H3 | No control has `input_type` "hidden" or "file". | Section 7, rule 6 and owner decision |
+| H4 | No control has the label "Secret" or "Invisible link". | Section 5, rules 2 and 3 |
+| H5 | The indexes are 0 and 1 with no gap, although excluded elements sit between the included ones. | Section 4, rule 5 |
+| H6 | The strings "sentinel-password" and "sentinel-token" appear nowhere in the serialized snapshot. | Section 7, rules 5 and 6 |
+| H7 | The "Continue" button below the 3000 px spacer is indexed and has `visible` true. | Section 5, owner decision |
+
+**8.3 `disabled_submit_page`**
+
+Page title "Disabled submit page". Controls, in document order:
+
+| Index | Element | control_type | accessible_label | current_value | disabled |
+|---|---|---|---|---|---|
+| 0 | `<input type="text" value="locked" disabled>` with `<label for>` text "Email" | `text_input` | "Email" | "locked" | true |
+| 1 | `<input type="checkbox" checked disabled>` inside a `<label>` with text "Locked option" | `checkbox` | "Locked option" | "checked" | true |
+| 2 | `<button type="button">Cancel</button>` | `button` | "Cancel" | null | false |
+| 3 | `<button type="submit" disabled>Submit</button>` | `button` | "Submit" | null | true |
+
+| ID | Check | Source |
+|---|---|---|
+| D1 | `control_count` is 4 and the four controls appear in the order above with indexes 0 to 3. | Section 4, rule 3 |
+| D2 | `disabled` is true for Email, Locked option and Submit, and false for Cancel. | Sections 2 and 4 |
+| D3 | `actionable` is false for Email, Locked option and Submit. `text_input_allowed` is false for Email. | Section 2, owner decision |
+| D4 | Disabled controls keep their `current_value`: "locked" for Email and "checked" for Locked option. | Section 7, owner decision |
+| D5 | After Submit is enabled from test code, the new fingerprint differs from the first, and Submit's entry has `disabled` false. | Section 6, rule 4 |
+| D6 | `fingerprint` equals the hash recomputed as in B8. | Section 6 |
+
+**8.4 Fingerprint golden vectors**
+
+These two tests call the fingerprint computation directly with fixed input and do not open a page. They pin the exact hashed text from section 6, which B8 and D6 cannot do because they recompute from the snapshot. **Simplified for Milestone 1**
+
+| ID | Input | Expected fingerprint |
+|---|---|---|
+| G1 | URL "https://example.test/". Controls: a `button` labeled "Save", not disabled, then a `link` with a null label, disabled. Hashed text: `["https://example.test/",[["button","Save",false],["link",null,true]]]` | `sha256:3e661f0bc93513b9557110dab29381e2792274dc138f4d5e237ad560e2c48b24` |
+| G2 | URL "https://example.test/". No controls. Hashed text: `["https://example.test/",[]]` | `sha256:f5cc5cee3342e5a39c5d61646932d63c9d67a9c5c61d6865c8858b1743f38c30` |
+
+**Open for owner decision:**
+- `current_value` for a text input that is empty (empty string or null). Every fixture text input has a value, so this is not tested.
+- `visible_text` and `input_type` for controls other than text inputs. Not asserted.
+- `actionable` for enabled controls, and `text_input_allowed` for controls that are not text inputs. Not asserted.
+- `accessible_label` for `<input type="submit">`. The mapping is decided (section 3), but no fixture uses this element.
+- How non-ASCII text is hashed in the fingerprint (escaped or raw characters). Fixtures are ASCII only.
+
+**Status: Proposed.** Scope: Milestone 1 only. Sections completed: 8 (top-level schema, control fields, control types, indexing rules, visibility and text rules, fingerprint, security, test cases).
