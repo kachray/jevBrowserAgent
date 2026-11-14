@@ -1,9 +1,12 @@
-# CLAUDE.md — TypedBrowse (DRAFT, pre-repository)
+# CLAUDE.md — TypedBrowse
 
-Status as of 2026-10-12: a repository exists at the project root, with a scaffold only —
+Status as of 2026-11-14: a repository exists at the project root, with a scaffold,
+the snapshot spec (docs/snapshot-spec.md and docs/snapshot-spec-milestone1.md, whose test
+cases are in section 8), and three HTML fixtures in tests/fixtures/. The scaffold is
 pyproject.toml, an empty src/typed_browse package tree, tests/, and a synced .venv
-(28 packages; see uv.lock). No agent, provider, browser, or policy logic exists yet. Paths
-below reflect the actual scaffold where noted as Verified; everything else is still
+(28 packages; see uv.lock). No agent, provider, browser, or policy logic exists yet, and
+there are no tests. Paths below reflect the actual repository where noted as Verified;
+everything else is still
 PROPOSED until implemented and inspected. Full context: `typedbrowse-development-context.md`
 (still at repo root, not yet moved to `docs/development-context.md` — pending owner
 approval). Open it when a task needs it; do not paste or import it here.
