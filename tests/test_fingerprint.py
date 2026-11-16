@@ -1,8 +1,7 @@
 """Tests for the snapshot fingerprint function.
 
-The function under test does not exist yet. These tests pin the hashed text decided in
-section 6 of docs/snapshot-spec-milestone1.md and the two golden vectors in section 8.4,
-so they fail with ModuleNotFoundError until typed_browse.browser.fingerprint is written.
+These tests pin the hashed text decided in section 6 of docs/snapshot-spec-milestone1.md
+and the golden vectors in section 8.4.
 """
 
 import re
@@ -17,6 +16,10 @@ G2_URL = "https://example.test/"
 G2_CONTROLS = []
 G2_EXPECTED = "sha256:f5cc5cee3342e5a39c5d61646932d63c9d67a9c5c61d6865c8858b1743f38c30"
 
+G3_URL = "https://example.test/"
+G3_CONTROLS = [("button", "Caf\u00e9", False)]
+G3_EXPECTED = "sha256:56ff18fb9959747dc990fd8741e6b54b7b456e7bec72530d3f1176bbaf3d42cb"
+
 PREFIX_AND_HEX = re.compile(r"^sha256:[0-9a-f]{64}$")
 
 
@@ -26,6 +29,10 @@ def test_g1_golden_vector() -> None:
 
 def test_g2_golden_vector() -> None:
     assert compute_fingerprint(G2_URL, G2_CONTROLS) == G2_EXPECTED
+
+
+def test_g3_non_ascii_label_is_hashed_as_raw_utf8() -> None:
+    assert compute_fingerprint(G3_URL, G3_CONTROLS) == G3_EXPECTED
 
 
 def test_result_is_prefixed_sha256_and_lowercase_hex() -> None:
