@@ -151,6 +151,7 @@ All three deferred items depend on `act()` and the agent loop, which Milestone 1
 - `disabled` contributes to the fingerprint (row 4). **Owner decision (not in v0.1)**
 - The hashed text is a compact JSON array of the page URL and, for each control in index order, its `control_type`, `accessible_label` and `disabled`, in the form `[url, [[control_type, accessible_label, disabled], ...]]`, with no extra whitespace and encoded as UTF-8. A null `accessible_label` stays `null` and is not converted to an empty string. The control count is not hashed separately, because the array length already carries it. **Owner decision (not in v0.1)**
 - The fingerprint keeps the "sha256:" prefix, followed by the hex digest. **Owner decision (not in v0.1)**
+- The hashed text is written with raw UTF-8 characters, not with unicode escape sequences, so a label such as "Café" is hashed as the characters themselves. **Owner decision (not in v0.1)**
 
 ## 7. Security and privacy (parent section 13)
 
@@ -181,7 +182,7 @@ These are the Milestone 1 test cases. Each one asserts only what sections 1 to 7
 Rules for every test: **Simplified for Milestone 1**
 - Each test opens a fixture from a local file URL. No network is used.
 - A test never hardcodes a fingerprint, because `page.url` is a file URL that differs from machine to machine. It recomputes the hash from the snapshot using the section 6 formula and compares.
-- Fixtures contain ASCII text only, because how non-ASCII text is hashed is not decided.
+- Fixtures contain ASCII text only. How non-ASCII text is hashed is pinned by G3 in section 8.4.
 - A test that needs a changed page changes the fixture's DOM from test code after the first observation, then observes again.
 
 | Fixture | File | Milestone 1 | Label |
@@ -266,18 +267,18 @@ Page title "Disabled submit page". Controls, in document order:
 
 **8.4 Fingerprint golden vectors**
 
-These two tests call the fingerprint computation directly with fixed input and do not open a page. They pin the exact hashed text from section 6, which B8 and D6 cannot do because they recompute from the snapshot. **Simplified for Milestone 1**
+These three tests call the fingerprint computation directly with fixed input and do not open a page. They pin the exact hashed text from section 6, which B8 and D6 cannot do because they recompute from the snapshot. **Simplified for Milestone 1**
 
 | ID | Input | Expected fingerprint |
 |---|---|---|
 | G1 | URL "https://example.test/". Controls: a `button` labeled "Save", not disabled, then a `link` with a null label, disabled. Hashed text: `["https://example.test/",[["button","Save",false],["link",null,true]]]` | `sha256:3e661f0bc93513b9557110dab29381e2792274dc138f4d5e237ad560e2c48b24` |
 | G2 | URL "https://example.test/". No controls. Hashed text: `["https://example.test/",[]]` | `sha256:f5cc5cee3342e5a39c5d61646932d63c9d67a9c5c61d6865c8858b1743f38c30` |
+| G3 | URL "https://example.test/". Controls: a `button` labeled "Café", not disabled. Hashed text: `["https://example.test/",[["button","Café",false]]]`, with the accented letter written as the raw UTF-8 character | `sha256:56ff18fb9959747dc990fd8741e6b54b7b456e7bec72530d3f1176bbaf3d42cb` |
 
 **Open for owner decision:**
 - `current_value` for a text input that is empty (empty string or null). Every fixture text input has a value, so this is not tested.
 - `visible_text` and `input_type` for controls other than text inputs. Not asserted.
 - `actionable` for enabled controls, and `text_input_allowed` for controls that are not text inputs. Not asserted.
 - `accessible_label` for `<input type="submit">`. The mapping is decided (section 3), but no fixture uses this element.
-- How non-ASCII text is hashed in the fingerprint (escaped or raw characters). Fixtures are ASCII only.
 
 **Status: Proposed.** Scope: Milestone 1 only. Sections completed: 8 (top-level schema, control fields, control types, indexing rules, visibility and text rules, fingerprint, security, test cases).
