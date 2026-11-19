@@ -13,9 +13,10 @@ def compute_fingerprint(
 
     The hashed text is the compact JSON array
     ``[url, [[control_type, accessible_label, disabled], ...]]`` with no extra
-    whitespace, encoded as UTF-8. A null label stays ``null``. How non-ASCII
-    text is hashed (raw UTF-8, not ``\\u`` escapes) is an owner decision pending
-    in section 8.4 of docs/snapshot-spec-milestone1.md.
+    whitespace, encoded as UTF-8. A null label stays ``null``. Non-ASCII text
+    is written with raw UTF-8 characters, not with unicode escape sequences, so
+    it is hashed as those characters themselves, per section 6 of
+    docs/snapshot-spec-milestone1.md.
     """
     facts = [
         [control_type, label, disabled]
