@@ -81,3 +81,17 @@
   85b19ac and section 8 committed in 24b8d18.
 - Status: Proposed design, decided by the owner. docs/snapshot-spec.md has NOT been
   updated to match; the two documents differ until the parent spec is revised.
+
+## 2026-11-18
+- Snapshot spec section 6 (fingerprint) and section 8.4 (golden vectors): one owner
+  decision, recorded here because docs/snapshot-spec.md (v0.1) does not contain it.
+  1. The hashed text is written with raw UTF-8 characters, not with unicode escape
+     sequences, so non-ASCII characters are hashed as their UTF-8 encoding.
+- Related: golden vector G3 was added as a row in section 8.4 and as a test, and the
+  open item about non-ASCII hashing was removed from the spec.
+- Related: the 2026-11-10 entry said the fixtures contain ASCII text only because this
+  question was still open; this entry closes it.
+- Source of record: docs/snapshot-spec-milestone1.md committed in 2c02988; test
+  committed in ed01433.
+- Status: Proposed design, decided by the owner. docs/snapshot-spec.md has NOT been
+  updated to match; the two documents differ until the parent spec is revised.
