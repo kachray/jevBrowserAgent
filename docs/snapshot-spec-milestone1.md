@@ -53,6 +53,22 @@ Milestone 1 enforces no cap on page text or control count; the truncation flags 
 - `current_value` for a checkbox: the string "checked" or "unchecked". **Owner decision (not in v0.1)**
 - A disabled control has `actionable: false`. A disabled `text_input` also has `text_input_allowed: false`. **Owner decision (not in v0.1)**
 
+For each supported control type, the value of five fields is decided as follows. This applies to enabled controls; the disabled rule above stays, and the other fields of a disabled control follow this table. **Owner decision (not in v0.1)**
+
+| Control | `actionable` | `text_input_allowed` | `visible_text` | `input_type` | `current_value` |
+|---|---|---|---|---|---|
+| `link` (an `a` element with an `href`) | true | false | the rendered text | null | null |
+| `button` (the `button` element) | true | false | the rendered text | null | null |
+| `text_input` | true | true | null | the type attribute, lowercased; `text` if the attribute is absent | the value; the empty string if the value is empty |
+| `checkbox` | true | false | null | `checkbox` | `checked` or `unchecked` as a string |
+
+- `visible` is always true in Milestone 1, so `actionable` for a supported control depends only on `disabled`. **Owner decision (not in v0.1)**
+- An empty text input has `current_value` as the empty string, not null, so that an empty value stays distinct from the null that means not applicable. **Owner decision (not in v0.1)**
+- A text input with no type attribute reports `input_type` as `text`, because that is how the browser treats it. **Owner decision (not in v0.1)**
+- For a link or a button, `visible_text` is the element's own rendered text, the same value as `accessible_label`; a text input or a checkbox has no rendered text of its own, so its `visible_text` is null, as section 5 rule 5 describes for a control that has rendered text. **Owner decision (not in v0.1)**
+- The `input` element with type `submit` is not decided here: its `accessible_label`, `visible_text` and `input_type` stay open and are listed at the end of section 8.4. **Owner decision (not in v0.1)**
+- The `unknown` type gets no row, because it is never produced in Milestone 1 (section 3). **Owner decision (not in v0.1)**
+
 ## 3. Control types (parent section 5)
 
 | Type | Milestone 1 | Label |
@@ -273,9 +289,7 @@ These three tests call the fingerprint computation directly with fixed input and
 | G3 | URL "https://example.test/". Controls: a `button` labeled "Café", not disabled. Hashed text: `["https://example.test/",[["button","Café",false]]]`, with the accented letter written as the raw UTF-8 character | `sha256:56ff18fb9959747dc990fd8741e6b54b7b456e7bec72530d3f1176bbaf3d42cb` |
 
 **Open for owner decision:**
-- `current_value` for a text input that is empty (empty string or null). Every fixture text input has a value, so this is not tested.
-- `visible_text` and `input_type` for controls other than text inputs. Not asserted.
-- `actionable` for enabled controls, and `text_input_allowed` for controls that are not text inputs. Not asserted.
-- `accessible_label` for `<input type="submit">`. The mapping is decided (section 3), but no fixture uses this element.
+- `accessible_label`, `visible_text` and `input_type` for `<input type="submit">`. The mapping is decided (section 3), but no fixture uses this element.
+- The field values in the section 2 table are decided, but no test in this section asserts them yet.
 
 **Status: Proposed.** Scope: Milestone 1 only. Sections completed: 8 (top-level schema, control fields, control types, indexing rules, visibility and text rules, fingerprint, security, test cases).
