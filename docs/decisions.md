@@ -95,3 +95,24 @@
   committed in ed01433.
 - Status: Proposed design, decided by the owner. docs/snapshot-spec.md has NOT been
   updated to match; the two documents differ until the parent spec is revised.
+
+## 2026-11-20
+- Snapshot spec section 3 (control types): one owner decision, recorded here
+  because docs/snapshot-spec.md (v0.1) does not contain it.
+  1. In Milestone 1 only the elements in the section 3 mapping are indexed as
+     controls. Any other element, or any other input type, is not indexed. The
+     type `unknown` stays defined in the schema but is never produced in
+     Milestone 1. Examples of what is not indexed: an `a` element without an
+     `href`, `textarea`, `select`, radio inputs, and input types other than
+     `text`, `search`, `checkbox` and `submit`. Password, hidden and file inputs
+     stay excluded as already decided. Real handling of unsupported controls is
+     left to a later revision, together with the `unsupported_control_case`
+     fixture.
+- Related: the 2026-11-10 entry, decision 1, said which other elements are indexed
+  as `unknown` was still open. This entry settles it: the fallback rule "any other
+  element indexed as a control is `unknown`" is replaced with the not-indexed rule,
+  and the open item was removed from section 3 of the spec.
+- Source of record: docs/snapshot-spec-milestone1.md section 3, committed in
+  9951b5e.
+- Status: Proposed design, decided by the owner. docs/snapshot-spec.md has NOT been
+  updated to match; the two documents differ until the parent spec is revised.
