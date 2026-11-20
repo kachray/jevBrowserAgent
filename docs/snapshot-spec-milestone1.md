@@ -61,12 +61,12 @@ Milestone 1 enforces no cap on page text or control count; the truncation flags 
 | `button` | Kept | Narrowed from v0.1 |
 | `text_input` | Kept | Narrowed from v0.1 |
 | `checkbox` | Kept | Narrowed from v0.1 |
-| `unknown` | Kept | Narrowed from v0.1 |
+| `unknown` | Defined in the schema, never produced in Milestone 1 | Simplified for Milestone 1 |
 | `textarea` | Deferred | Simplified for Milestone 1 |
 | `select` | Deferred | Simplified for Milestone 1 |
 | `radio` | Deferred | Simplified for Milestone 1 |
 
-- `unknown` is the fallback for any control the extraction logic cannot confidently classify. An `unknown` control may still appear in the snapshot (so Jev and the verifier can see it exists) but should default to `actionable: false` and `text_input_allowed: false` unless a later revision adds explicit handling. **Narrowed from v0.1**
+- `unknown` is the fallback for any control the extraction logic cannot confidently classify. The type stays defined in the schema, but Milestone 1 never produces it: only the elements in the mapping below are indexed as controls, and a control of this type would default to `actionable: false` and `text_input_allowed: false` if a later revision starts producing one. **Owner decision (not in v0.1)**
 - Drag-and-drop, file upload, payment, CAPTCHA, and arbitrary-JavaScript controls are excluded. **Narrowed from v0.1**
 
 **Owner decisions:**
@@ -75,10 +75,7 @@ Milestone 1 enforces no cap on page text or control count; the truncation flags 
   - `<button>` and `<input type="submit">`: `button`.
   - `<input>` with type `text`, `search`, or no type attribute: `text_input`.
   - `<input type="checkbox">`: `checkbox`.
-  - Any other element indexed as a control: `unknown`.
-
-**Open for owner decision:**
-- Which elements other than those above are indexed as `unknown` controls.
+  - Any other element, or any other input type, is not indexed in Milestone 1: for example an `a` element without an `href`, `textarea`, `select`, radio inputs, and input types other than `text`, `search`, `checkbox` and `submit` (for example `email`, `number`, `button` and `reset`). Password, hidden and file inputs stay excluded as decided in section 7. Real handling of unsupported controls is left to a later revision, together with the `unsupported_control_case` fixture. **Owner decision (not in v0.1)**
 
 ## 4. Indexing rules (parent section 6)
 
