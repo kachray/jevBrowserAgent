@@ -116,3 +116,33 @@
   9951b5e.
 - Status: Proposed design, decided by the owner. docs/snapshot-spec.md has NOT been
   updated to match; the two documents differ until the parent spec is revised.
+
+## 2026-11-20 (continued)
+- Snapshot spec section 2 (control fields) and section 8.4 (open items): one
+  owner decision, recorded here because docs/snapshot-spec.md (v0.1) does not
+  contain it.
+  1. `link` (an `a` element with an `href`): actionable true, text_input_allowed
+     false, visible_text the rendered text, input_type null, current_value null.
+  2. `button` (the `button` element): the same five values as `link`.
+  3. `text_input`: actionable true, text_input_allowed true, visible_text null,
+     input_type the type attribute lowercased, or `text` if the attribute is
+     absent, current_value the value, or the empty string if the value is empty.
+  4. `checkbox`: actionable true, text_input_allowed false, visible_text null,
+     input_type `checkbox`, current_value `checked` or `unchecked` as a string.
+  `visible` is always true in Milestone 1, so actionable for a supported control
+  depends only on disabled. The disabled rule from the 2026-11-10 entry stays.
+- Related: an empty text input has current_value as the empty string, not null,
+  so an empty value stays distinct from the null that means not applicable.
+  This adds to the 2026-11-07 decision on current_value and does not change it.
+- Related: section 5 rule 5 says visible_text is the control's own rendered
+  text. The spec reconciles it with a null visible_text for text inputs and
+  checkboxes by a note in section 2; rule 5 itself was left unchanged.
+- Related: the `input` element with type `submit` is not decided. Its
+  accessible_label, visible_text and input_type stay open in the section 8.4
+  open block. Three open items were removed from that block: the empty text
+  input current_value; visible_text and input_type for other controls; and
+  actionable and text_input_allowed. No test asserts the new values yet.
+- Source of record: docs/snapshot-spec-milestone1.md sections 2 and 8.4,
+  committed in dfd2134.
+- Status: Proposed design, decided by the owner. docs/snapshot-spec.md has NOT been
+  updated to match; the two documents differ until the parent spec is revised.
