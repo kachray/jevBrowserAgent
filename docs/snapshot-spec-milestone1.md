@@ -28,6 +28,9 @@ local HTML fixture -> Playwright opens it -> visible controls observed -> snapsh
 
 Milestone 1 enforces no cap on page text or control count; the truncation flags return when caps are added. **Simplified for Milestone 1**
 
+**Owner decisions:**
+- `schema_version` is the string `typedbrowse.snapshot.v0.1-m1`, because the Milestone 1 fingerprint formula differs from the parent spec's, so the string says this is the Milestone 1 subset and not plain v0.1. **Owner decision (not in v0.1)**
+
 ## 2. Control fields (parent section 4)
 
 | Field | Milestone 1 | Label |
@@ -66,7 +69,7 @@ For each supported control type, the value of five fields is decided as follows.
 - An empty text input has `current_value` as the empty string, not null, so that an empty value stays distinct from the null that means not applicable. **Owner decision (not in v0.1)**
 - A text input with no type attribute reports `input_type` as `text`, because that is how the browser treats it. **Owner decision (not in v0.1)**
 - For a link or a button, `visible_text` is the element's own rendered text, the same value as `accessible_label`; a text input or a checkbox has no rendered text of its own, so its `visible_text` is null, as section 5 rule 5 describes for a control that has rendered text. **Owner decision (not in v0.1)**
-- The `input` element with type `submit` is not decided here: its `accessible_label`, `visible_text` and `input_type` stay open and are listed at the end of section 8.4. **Owner decision (not in v0.1)**
+- The `input` element with type `submit` is mapped to `button` in section 3, so it takes the values given for the `button` element in the table above for `actionable`, `text_input_allowed` and `current_value`, and its `input_type` is `submit`. Its `accessible_label` is the `value` attribute, whitespace-normalized as in section 5 rule 7, and null if the attribute is absent; its `visible_text` is the same value. A submit input shows its `value` attribute as its button text, which is the own-rendered-text rule already decided for buttons; with no `value` attribute the browser shows a default label that we do not read, so the label is null. **Owner decision (not in v0.1)**
 - The `unknown` type gets no row, because it is never produced in Milestone 1 (section 3). **Owner decision (not in v0.1)**
 
 ## 3. Control types (parent section 5)
@@ -138,6 +141,8 @@ For each supported control type, the value of five fields is decided as follows.
 **Owner decisions:**
 - An element that is off-screen but reachable by scrolling counts as visible and is indexed. **Owner decision (not in v0.1)**
 - `accessible_label` for buttons and links is the element's own rendered text, the same value as `visible_text`. Known gap: an icon-only control that has only an `aria-label` gets a null label. **Owner decision (not in v0.1)**
+- `page.text_summary` is the page's rendered visible text, whitespace-normalized as in rule 7. It excludes content that is `display: none` or `visibility: hidden`, and excludes scripts and styles. It includes the text of buttons and links, with no deduplication against the controls. It excludes input values and placeholders, including the value of a submit input. It is the empty string if the page has no rendered text. There is no length cap in Milestone 1. **Owner decision (not in v0.1)**
+- For a submit input, `accessible_label` and `visible_text` are both the `value` attribute, so rule 8 (the associated label element, then `placeholder`) does not apply to it, and the two fields do not differ for it as they do for text inputs. **Owner decision (not in v0.1)**
 
 ## 6. Fingerprint (parent section 9)
 
@@ -289,7 +294,6 @@ These three tests call the fingerprint computation directly with fixed input and
 | G3 | URL "https://example.test/". Controls: a `button` labeled "Café", not disabled. Hashed text: `["https://example.test/",[["button","Café",false]]]`, with the accented letter written as the raw UTF-8 character | `sha256:56ff18fb9959747dc990fd8741e6b54b7b456e7bec72530d3f1176bbaf3d42cb` |
 
 **Open for owner decision:**
-- `accessible_label`, `visible_text` and `input_type` for `<input type="submit">`. The mapping is decided (section 3), but no fixture uses this element.
-- The field values in the section 2 table are decided, but no test in this section asserts them yet.
+- The field values in the section 2 table and the page-level values in sections 1 and 5 are decided, but no test in this section asserts them yet.
 
 **Status: Proposed.** Scope: Milestone 1 only. Sections completed: 8 (top-level schema, control fields, control types, indexing rules, visibility and text rules, fingerprint, security, test cases).
