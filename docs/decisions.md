@@ -146,3 +146,45 @@
   committed in dfd2134.
 - Status: Proposed design, decided by the owner. docs/snapshot-spec.md has NOT been
   updated to match; the two documents differ until the parent spec is revised.
+
+## 2026-11-21
+- Snapshot spec sections 1, 2, 5 and 8.4: two owner decisions, recorded here
+  because docs/snapshot-spec.md (v0.1) does not contain them.
+  1. The `input` element with type `submit` is a `button` by the 2026-11-10
+     mapping. Its `accessible_label` is the `value` attribute,
+     whitespace-normalized as in section 5 rule 7, and null if the attribute is
+     absent; its `visible_text` is the same value; its `input_type` is `submit`;
+     and `actionable`, `text_input_allowed` and `current_value` are as for the
+     `button` element, so true, false and null when it is enabled, with the
+     disabled rule staying. A submit input shows its `value` attribute as its
+     button text, which is the own-rendered-text rule already decided for
+     buttons. With no `value` attribute the browser shows a default label that
+     is not read, so the label is null. Section 5 rule 8, the label element and
+     then `placeholder`, does not apply to a submit input; that carve-out is
+     stated in the spec, and rule 8 itself was not changed.
+  2. Page-level values:
+     a. `page.text_summary` is the page's rendered visible text,
+        whitespace-normalized as in section 5 rule 7. It excludes content that
+        is `display: none` or `visibility: hidden`, and excludes scripts and
+        styles. It includes the text of buttons and links, with no
+        deduplication against the controls. It excludes input values and
+        placeholders, including the value of a submit input. It is the empty
+        string if the page has no rendered text. There is no length cap in
+        Milestone 1.
+     b. `schema_version` is the string `typedbrowse.snapshot.v0.1-m1`, because
+        the Milestone 1 fingerprint formula differs from the parent spec's, so
+        the string says this is the Milestone 1 subset and not plain v0.1.
+- Related: the 2026-11-20 (continued) entry said the submit input was not
+  decided; this entry settles it, and the open item about the submit input was
+  removed from the section 8.4 open block. What remains there is one sentence
+  saying the section 2 values and the page-level values in sections 1 and 5 are
+  decided but not yet asserted by any test.
+- Related: the section 1 rows for `schema_version` and `page.text_summary` still
+  read "Kept, Narrowed from v0.1"; the values are recorded as separate owner
+  decisions below them. The section 5 adjusted note that `visible_text` and
+  `accessible_label` still differ for inputs was left unchanged, and the new
+  section 5 bullet states the submit exception beside it.
+- Source of record: docs/snapshot-spec-milestone1.md sections 1, 2, 5 and 8.4,
+  committed in f3083ac.
+- Status: Proposed design, decided by the owner. docs/snapshot-spec.md has NOT been
+  updated to match; the two documents differ until the parent spec is revised.
