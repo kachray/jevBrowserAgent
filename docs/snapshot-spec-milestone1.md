@@ -208,6 +208,7 @@ Rules for every test: **Simplified for Milestone 1**
 | `basic_page` | `tests/fixtures/basic_page.html` | Kept | Simplified for Milestone 1 |
 | `hidden_input_case` | `tests/fixtures/hidden_input_case.html` | Kept | Narrowed from v0.1 |
 | `disabled_submit_page` | `tests/fixtures/disabled_submit_page.html` | Kept | Narrowed from v0.1 |
+| `input_edge_cases` | `tests/fixtures/input_edge_cases.html` | Kept | Owner decision (not in v0.1) |
 | `hotel_page`, `injection_page`, `overlay_page`, `stale_page_case`, `duplicate_label_case`, `long_text_case`, `unsupported_control_case` | None yet | Deferred | Simplified for Milestone 1 |
 
 `basic_page` stands in for `hotel_page` as the happy-path fixture, because `select` is deferred (section 3). **Simplified for Milestone 1**
@@ -225,9 +226,18 @@ Page title "Basic page". It has a paragraph whose source text contains irregular
 | 4 | `<input type="checkbox" checked>` with `<label for>` text "Remember me" | `checkbox` | "Remember me" | "checked" |
 | 5 | `<button type="button">Save</button>` | `button` | "Save" | null |
 
+| Index | `visible_text` | `input_type` | `actionable` | `text_input_allowed` |
+|---|---|---|---|---|
+| 0 | "About us" | null | true | false |
+| 1 | null | "text" | true | true |
+| 2 | null | "search" | true | true |
+| 3 | null | "checkbox" | true | false |
+| 4 | null | "checkbox" | true | false |
+| 5 | "Save" | null | true | false |
+
 | ID | Check | Source |
 |---|---|---|
-| B1 | `schema_version` is present. `page.url` is the fixture's URL. `page.title` is "Basic page". `observation_id` is null. `control_count` is 6 and equals the length of `controls`. | Section 1 |
+| B1 | `schema_version` is the string `typedbrowse.snapshot.v0.1-m1`. `page.url` is the fixture's URL. `page.title` is "Basic page". `observation_id` is null. `control_count` is 6 and equals the length of `controls`. | Section 1, owner decision |
 | B2 | The six controls appear in document order with indexes 0 to 5. | Section 4, rules 1 and 5 |
 | B3 | `control_type` and `accessible_label` match the table above. | Sections 3 and 5 |
 | B4 | `current_value` matches the table above, and is null for the link and the button. | Sections 2 and 7 |
@@ -237,6 +247,7 @@ Page title "Basic page". It has a paragraph whose source text contains irregular
 | B8 | `fingerprint` is "sha256:" followed by 64 lowercase hex digits, and equals the hash recomputed from `page.url` and each control's `control_type`, `accessible_label` and `disabled`. | Section 6 |
 | B9 | Observing the unchanged page twice gives the same fingerprint. | Section 6 |
 | B10 | After the text of the "Save" button is changed from test code, the new fingerprint differs from the first. | Section 6, rule 3 |
+| B11 | `visible_text`, `input_type`, `actionable` and `text_input_allowed` match the second table above. | Section 2 table |
 
 **8.2 `hidden_input_case`**
 
@@ -262,6 +273,7 @@ Page title "Hidden input case". Elements, in document order:
 | H5 | The indexes are 0 and 1 with no gap, although excluded elements sit between the included ones. | Section 4, rule 5 |
 | H6 | The strings "sentinel-password" and "sentinel-token" appear nowhere in the serialized snapshot. | Section 7, rules 5 and 6 |
 | H7 | The "Continue" button below the 3000 px spacer is indexed and has `visible` true. | Section 5, owner decision |
+| H8 | `page.text_summary` does not contain "Secret", "Invisible link", "sentinel-password", "sentinel-token" or "Ana", and does contain "Continue". | Section 5, owner decision on `page.text_summary` |
 
 **8.3 `disabled_submit_page`**
 
@@ -282,6 +294,7 @@ Page title "Disabled submit page". Controls, in document order:
 | D4 | Disabled controls keep their `current_value`: "locked" for Email and "checked" for Locked option. | Section 7, owner decision |
 | D5 | After Submit is enabled from test code, the new fingerprint differs from the first, and Submit's entry has `disabled` false. | Section 6, rule 4 |
 | D6 | `fingerprint` equals the hash recomputed as in B8. | Section 6 |
+| D7 | `visible_text` and `input_type` are null and "text" for Email, null and "checkbox" for Locked option, "Cancel" and null for Cancel, and "Submit" and null for Submit, whose element is a button and not an input. `actionable` is true for Cancel. `text_input_allowed` is false for Locked option, Cancel and Submit. | Section 2 table and owner decisions |
 
 **8.4 Fingerprint golden vectors**
 
@@ -293,7 +306,33 @@ These three tests call the fingerprint computation directly with fixed input and
 | G2 | URL "https://example.test/". No controls. Hashed text: `["https://example.test/",[]]` | `sha256:f5cc5cee3342e5a39c5d61646932d63c9d67a9c5c61d6865c8858b1743f38c30` |
 | G3 | URL "https://example.test/". Controls: a `button` labeled "Café", not disabled. Hashed text: `["https://example.test/",[["button","Café",false]]]`, with the accented letter written as the raw UTF-8 character | `sha256:56ff18fb9959747dc990fd8741e6b54b7b456e7bec72530d3f1176bbaf3d42cb` |
 
-**Open for owner decision:**
-- The field values in the section 2 table and the page-level values in sections 1 and 5 are decided, but no test in this section asserts them yet.
+**8.5 `input_edge_cases`**
+
+Page title "Input edge cases". Controls, in document order:
+
+| Index | Element | control_type | accessible_label | visible_text | input_type | current_value | actionable | text_input_allowed |
+|---|---|---|---|---|---|---|---|---|
+| 0 | `<input type="text">` with no value attribute, with `<label for>` text "Empty" | `text_input` | "Empty" | null | "text" | "" | true | true |
+| 1 | `<input>` with no type attribute and value "Plain", with `<label for>` text "No type" | `text_input` | "No type" | null | "text" | "Plain" | true | true |
+| 2 | `<input type="SEARCH" value="Mixed">` with `<label for>` text "Upper case" | `text_input` | "Upper case" | null | "search" | "Mixed" | true | true |
+| 3 | `<input type="submit" value="Send">` | `button` | "Send" | "Send" | "submit" | null | true | false |
+| 4 | `<input type="submit">` with no value attribute | `button` | null | null | "submit" | null | true | false |
+
+| ID | Check | Source |
+|---|---|---|
+| I1 | `control_count` is 5 and the five controls appear in the order above with indexes 0 to 4. | Section 4 |
+| I2 | `control_type` and `accessible_label` match the table above, including the null label of the last control. | Sections 3 and 5 |
+| I3 | `input_type` matches the table above, including "search" for the control whose type attribute is in capital letters. | Section 2 |
+| I4 | `current_value` matches the table above, including the empty string, not null, for the first control, and null for both submit inputs. | Sections 2 and 7 |
+| I5 | `visible_text` matches the table above. | Sections 2 and 5 |
+| I6 | `actionable` is true for all five controls, and `text_input_allowed` is true for the first three and false for the last two. | Section 2 |
+| I7 | `page.text_summary` does not contain "Send", "Plain" or "Mixed", because input values are not rendered text. | Section 5, owner decision |
+| I8 | `fingerprint` is "sha256:" followed by 64 lowercase hex digits, and equals the hash recomputed as in B8, with the null label of the last control hashed as null. | Section 6 |
+
+The `type` attribute of an input is matched without regard to case, both when the control type is chosen under the section 3 mapping and when `input_type` is lowercased under section 2, as HTML itself treats it. **Owner decision (not in v0.1)**
+
+**Not yet asserted by any test:**
+- `page.text_summary` for a page with no rendered text, which is the empty string.
+- The exclusion of scripts and styles from `page.text_summary`.
 
 **Status: Proposed.** Scope: Milestone 1 only. Sections completed: 8 (top-level schema, control fields, control types, indexing rules, visibility and text rules, fingerprint, security, test cases).
