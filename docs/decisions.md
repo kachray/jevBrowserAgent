@@ -188,3 +188,37 @@
   committed in f3083ac.
 - Status: Proposed design, decided by the owner. docs/snapshot-spec.md has NOT been
   updated to match; the two documents differ until the parent spec is revised.
+
+## 2026-11-22
+- Snapshot spec section 8 (test cases): owner decisions, recorded here because
+  docs/snapshot-spec.md (v0.1) does not contain them.
+  1. A fourth fixture, `input_edge_cases`, with file
+     `tests/fixtures/input_edge_cases.html`, is added to the fixture list. It
+     has five controls: an empty text input, a text input with no type
+     attribute, an input whose type is written in capital letters, an input of
+     type `submit` with a value, and an input of type `submit` with no value.
+     Its tests are I1 to I8 in the new section 8.5. The fixture file itself
+     does not exist yet; it is a later step.
+  2. New assertions pin the values decided on 2026-11-20 and 2026-11-21. B1 now
+     checks that `schema_version` is the string
+     `typedbrowse.snapshot.v0.1-m1`; B11 asserts `visible_text`, `input_type`,
+     `actionable` and `text_input_allowed` for `basic_page`; H8 asserts what
+     `page.text_summary` contains and excludes for `hidden_input_case`; D7
+     asserts the same field values for `disabled_submit_page`. Existing test
+     IDs B2 to B10, H1 to H7, D1 to D6 and G1 to G3 are unchanged.
+  3. The `type` attribute of an input is matched without regard to case, both
+     when the control type is chosen under the section 3 mapping and when
+     `input_type` is lowercased under section 2, as HTML itself treats it. This
+     is stated in the spec under the 8.5 table and labelled an owner decision.
+- Related: the 2026-11-21 entry said the section 8.4 block held one sentence
+  saying the values were decided but not yet asserted. That block was replaced
+  by a list headed "Not yet asserted by any test", with two items:
+  `page.text_summary` for a page with no rendered text, which is the empty
+  string, and the exclusion of scripts and styles from `page.text_summary`. No
+  fixture contains a script or style element.
+- Related: the 2026-11-10 entry named three fixtures and said fixtures contain
+  ASCII text only; the fourth fixture keeps the ASCII-only rule.
+- Source of record: docs/snapshot-spec-milestone1.md section 8, committed in
+  33668a8.
+- Status: Proposed design, decided by the owner. docs/snapshot-spec.md has NOT been
+  updated to match; the two documents differ until the parent spec is revised.
