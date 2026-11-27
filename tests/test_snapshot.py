@@ -4,6 +4,7 @@ import json
 
 import pytest
 from pydantic import ValidationError
+
 from typed_browse.snapshot import Control, Page, Snapshot
 
 FINGERPRINT = "sha256:" + "0" * 64
