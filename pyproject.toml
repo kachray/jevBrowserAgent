@@ -23,3 +23,6 @@ build-backend = "hatchling.build"
 
 [tool.hatch.build.targets.wheel]
 packages = ["src/typed_browse"]
+
+[tool.ruff.lint.isort]
+known-first-party = ["typed_browse"]
