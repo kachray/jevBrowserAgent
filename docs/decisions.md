@@ -222,3 +222,42 @@
   33668a8.
 - Status: Proposed design, decided by the owner. docs/snapshot-spec.md has NOT been
   updated to match; the two documents differ until the parent spec is revised.
+
+## 2026-11-27
+- Snapshot data model: owner decisions, recorded here because
+  docs/snapshot-spec-milestone1.md does not contain them.
+  1. The model lives in src/typed_browse/snapshot.py at the package top level,
+     not under browser/, so that jev/ and verify/ never need a browser/ import.
+     It does not import src/typed_browse/browser/fingerprint.py, and that module
+     does not import it either.
+  2. Three pydantic models: Page, Control and Snapshot. All three use strict
+     mode and forbid extra fields.
+  3. The five nullable Control fields (accessible_label, visible_text, role,
+     input_type, current_value) are required with no default. A missing key is
+     rejected and an explicit null is accepted, so an empty string and a null
+     stay distinct after a JSON round trip.
+  4. observation_id is a string or null, default null. The Milestone 1 spec does
+     not state its type, so the type follows the parent spec section 3.
+  5. schema_version is a Literal of typedbrowse.snapshot.v0.1-m1 with that
+     string as its default. Any other value is rejected.
+  6. control_count is a stored integer. A value different from len(controls) is
+     rejected.
+  7. The model does not validate that indexes run 0 to n-1 in order. observe()
+     assigns them, and tests H5 and I1 check them there. To be revisited when
+     replay loads recorded snapshots.
+  8. fingerprint is checked for format only: sha256: followed by 64 lowercase
+     hex digits. The model never computes the hash; observe() will compute it
+     with compute_fingerprint.
+  9. The deferred fields (timestamp, text_truncated, control_count_truncated,
+     stable_id, options, required) are rejected when passed, not silently
+     ignored.
+- Related: strict mode accepts nested plain dicts and lists of dicts in
+  pydantic 2.14.1, checked read-only before the model was written.
+- Related: the 28 tests in tests/test_snapshot.py cover these decisions; B7 is
+  the JSON round trip.
+- Related: docs/snapshot-spec-milestone1.md and docs/snapshot-spec.md are not
+  changed by this entry.
+- Source of record: src/typed_browse/snapshot.py and tests/test_snapshot.py,
+  committed in dcc7390 and merged in PR #20. The test import order was fixed in
+  aef64c0, merged in PR #21; that fix is not a decision.
+- Status: Proposed design, decided by the owner.
