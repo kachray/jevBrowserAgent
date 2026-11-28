@@ -54,3 +54,28 @@
   paragraph and its Commands: UNKNOWN section; the dev-context doc at the repo
   root; the license choice (D11); payment-field detection before a real-website
   run; the parent docs/snapshot-spec.md not yet matching this spec.
+
+## 2026-11-27 — snapshot data model
+- Application code: src/typed_browse/snapshot.py with three pydantic models,
+  Page, Control and Snapshot, and tests/test_snapshot.py with 28 test cases,
+  including the B7 JSON round trip. Committed in dcc7390 and merged in PR #20.
+  It does not import the fingerprint module.
+- PR #21 (aef64c0) fixed a ruff import-order error in tests/test_snapshot.py. It
+  appeared on main after PR #20 was merged, although earlier runs on the branch
+  had passed. Inferred cause: a cached ruff result, plus the model module not
+  existing yet when the import block was first written. Verification commands
+  now use uv run ruff check . --no-cache.
+- PR #22 (1098162) added the 2026-11-27 entry to docs/decisions.md with the nine
+  snapshot model decisions.
+- Main was at 017a2e8, the merge of PR #22, when this entry was written: pytest
+  shows 37 passed and ruff is clean with --no-cache.
+- Still not built: observe(), browser actions, stale-page detection, policy
+  checks, the independent verifier, replay mode, and any Jev or Groq code.
+- Not yet asserted by any test, from section 8.5: page.text_summary for a page
+  with no rendered text, and the exclusion of scripts and styles from it.
+- Next: observe(), written test-first against the four fixtures.
+- Housekeeping still open: pin the Python version and the ruff configuration
+  (pyproject.toml); the stale CLAUDE.md status paragraph and its Commands
+  section, which should use the --no-cache form; the dev-context doc at the repo
+  root; the license choice (D11); payment-field detection before a real-website
+  run; the parent docs/snapshot-spec.md not yet matching the milestone spec.
